@@ -47,11 +47,9 @@ chmod +x install.sh
 ▶ Available personas:
 
   [1] Sundar Pichai (6 research files)
-  [2] Elon Musk
-  [3] Steve Jobs
   [a] Install ALL personas
 
-Select personas (e.g. 1 3 or a for all): 1
+Select personas (e.g. 1 or a for all): 1
 
 ▶ Select target platform:
 
@@ -93,21 +91,15 @@ distilled-minds/
 ├── install.sh              # 互動式安裝腳本
 ├── README.md
 └── personas/
-    ├── sundar-pichai/
-    │   ├── SKILL.md        # 蒸餾後的可運行 Skill
-    │   └── research/       # 原始調研資料（一手來源）
-    │       ├── 01-writings.md
-    │       ├── 02-conversations.md
-    │       ├── 03-expression-dna.md
-    │       ├── 04-external-views.md
-    │       ├── 05-decisions.md
-    │       └── 06-timeline.md
-    ├── elon-musk/
-    │   ├── SKILL.md
-    │   └── research/
-    └── steve-jobs/
-        ├── SKILL.md
-        └── research/
+    └── sundar-pichai/
+        ├── SKILL.md        # 蒸餾後的可運行 Skill
+        └── research/       # 原始調研資料（一手來源）
+            ├── 01-writings.md
+            ├── 02-conversations.md
+            ├── 03-expression-dna.md
+            ├── 04-external-views.md
+            ├── 05-decisions.md
+            └── 06-timeline.md
 ```
 
 ---
