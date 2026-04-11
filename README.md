@@ -5,7 +5,7 @@
 > **把世界頂尖思考者的認知操作系統，蒸餾成可安裝的 AI Skill。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Personas](https://img.shields.io/badge/Personas-3-blue)](#available-personas)
+[![Personas](https://img.shields.io/badge/Personas-1-blue)](#available-personas)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20%7C%20Copilot%20%7C%20Gemini-purple)](#install)
 
 每個 Persona 都包含：
@@ -23,8 +23,6 @@
 | Persona | 領域 | 核心框架 | 調研深度 |
 |---------|------|---------|---------|
 | **Sundar Pichai** | AI 戰略 / 科技治理 | Bold & Responsible · Full Stack AI · AJI 思維 | 6 個調研維度，30+ 一手來源 |
-| **Elon Musk** | 第一性原理 / 激進創新 | 物理思維 · 白痴指數 · 五步算法 | 20+ 一手來源 |
-| **Steve Jobs** | 產品設計 / 人文科技 | 聚焦即說不 · 端到端控制 · 死亡過濾器 | 30+ 一手來源 |
 
 ---
 
