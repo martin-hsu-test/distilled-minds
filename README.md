@@ -57,58 +57,47 @@ chmod +x install.sh
 
   [1]  Sundar Pichai      (6 research files)
   [2]  Jensen Huang       (6 research files)
-  [3]  Lisa Su            (6 research files)
-  [4]  Bill Gates         (6 research files)
-  [5]  Stephen Hawking    (6 research files)
-  [6]  Warren Buffett     (6 research files)
-  [7]  Charlie Munger     (6 research files)
-  [8]  Benjamin Graham    (6 research files)
-  [9]  Peter Lynch        (6 research files)
+  ...
   [10] Ray Dalio          (6 research files)
   [a]  Install ALL personas
 
-Select personas (e.g. 1,3,6 or a for all): a
+Select personas (e.g. 1 3 or a for all): a
 
 ▶ Select target platform:
 
-  [1] Claude Code   (~/.claude/skills/)
-  [2] GitHub Copilot CLI  (project skills/)
-  [3] Gemini CLI  (~/.gemini/personas/ + GEMINI.md)
+  [1] Claude Code        (~/.claude/skills/<name>/)
+  [2] GitHub Copilot CLI  (~/.copilot/skills/<name>/)
+  [3] Gemini CLI          (~/.gemini/ with @import in GEMINI.md)
   [4] All platforms
 
-Select platform [1-4]: 1
+Select platform [1-4]: 4
 
   ✓ Installing...
 
-  Sundar Pichai      → ✓ installed
-  Jensen Huang       → ✓ installed
-  Lisa Su            → ✓ installed
-  Bill Gates         → ✓ installed
-  Stephen Hawking    → ✓ installed
-  Warren Buffett     → ✓ installed
-  Charlie Munger     → ✓ installed
-  Benjamin Graham    → ✓ installed
-  Peter Lynch        → ✓ installed
-  Ray Dalio          → ✓ installed
+  Sundar Pichai
+  ✓ Claude Code:  → ~/.claude/skills/sundar-pichai/SKILL.md
+  ✓ Copilot CLI:  → ~/.copilot/skills/sundar-pichai/SKILL.md
+  ✓ Gemini CLI:   → ~/.gemini/personas/sundar-pichai.md (imported in GEMINI.md)
+  ...
 
-  Activate a Gemini persona globally?
-    [1] Sundar Pichai
-    ...
-    [s] Skip
-
-  Select [1-10/s]: 1
-  ✓ Activated: Sundar Pichai → ~/.gemini/GEMINI.md
-
-✓ Installation complete! (10 personas)
+✓ Installation complete!
 ```
+
+### 解除安裝
+
+```bash
+./install.sh --uninstall
+```
+
+選擇要移除的平台，所有已安裝的 persona 會被自動清除。
 
 ### 平台安裝位置
 
-| 平台 | 安裝位置 | 觸發方式 |
-|------|---------|---------|
-| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | 觸發詞：「用 XX 的視角」 |
-| **GitHub Copilot CLI** | `<project>/skills/<name>/SKILL.md` | 觸發詞：「用 XX 的視角」 |
-| **Gemini CLI** | `~/.gemini/personas/<name>.md`（儲存）<br>`~/.gemini/GEMINI.md`（啟用） | 啟動 `gemini` 自動載入；切換：`cp ~/.gemini/personas/<name>.md ~/.gemini/GEMINI.md` |
+| 平台 | 安裝位置 | 多人物支援 | 觸發方式 |
+|------|---------|-----------|---------|
+| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | ✅ 自動發現所有 skill | 觸發詞：「用 XX 的視角」 |
+| **GitHub Copilot CLI** | `~/.copilot/skills/<name>/SKILL.md` | ✅ 自動發現，`/skills list` 查看 | 觸發詞：「用 XX 的視角」或 `/skills` 選擇 |
+| **Gemini CLI** | `~/.gemini/personas/<name>.md`<br>自動 `@import` 到 `~/.gemini/GEMINI.md` | ✅ 所有 persona 同時載入 | 啟動 `gemini` 自動載入；`/memory show` 檢視 |
 
 ### 列出可用 Persona
 
