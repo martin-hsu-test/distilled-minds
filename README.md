@@ -73,7 +73,7 @@ Select personas (e.g. 1,3,6 or a for all): a
 
   [1] Claude Code   (~/.claude/skills/)
   [2] GitHub Copilot CLI  (project skills/)
-  [3] Gemini   (generate system-instructions.md)
+  [3] Gemini CLI  (~/.gemini/personas/ + GEMINI.md)
   [4] All platforms
 
 Select platform [1-4]: 1
@@ -91,6 +91,14 @@ Select platform [1-4]: 1
   Peter Lynch        → ✓ installed
   Ray Dalio          → ✓ installed
 
+  Activate a Gemini persona globally?
+    [1] Sundar Pichai
+    ...
+    [s] Skip
+
+  Select [1-10/s]: 1
+  ✓ Activated: Sundar Pichai → ~/.gemini/GEMINI.md
+
 ✓ Installation complete! (10 personas)
 ```
 
@@ -98,9 +106,9 @@ Select platform [1-4]: 1
 
 | 平台 | 安裝位置 | 觸發方式 |
 |------|---------|---------|
-| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | 說「用 Sundar 的視角」 |
-| **GitHub Copilot CLI** | `<project>/skills/<name>/SKILL.md` | 說「用 Sundar 的視角」 |
-| **Gemini** | `~/.gemini/system-instructions-<name>.md` | `--system-instructions` 旗標 |
+| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | 觸發詞：「用 XX 的視角」 |
+| **GitHub Copilot CLI** | `<project>/skills/<name>/SKILL.md` | 觸發詞：「用 XX 的視角」 |
+| **Gemini CLI** | `~/.gemini/personas/<name>.md`（儲存）<br>`~/.gemini/GEMINI.md`（啟用） | 啟動 `gemini` 自動載入；切換：`cp ~/.gemini/personas/<name>.md ~/.gemini/GEMINI.md` |
 
 ### 列出可用 Persona
 

@@ -73,7 +73,7 @@ select_personas() {
     display=$(get_display_name "$persona")
     # Check if research data is available
     local research_count
-    research_count=$(find "$PERSONAS_DIR/$persona/research" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    research_count=$(find "$PERSONAS_DIR/$persona/references/research" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
     if [[ "$research_count" -gt 0 ]]; then
       echo -e "  ${BOLD}[$i]${RESET} $display ${DIM}($research_count research files)${RESET}"
     else
@@ -111,7 +111,7 @@ select_platform() {
   echo ""
   echo -e "  ${BOLD}[1]${RESET} Claude Code   ${DIM}(~/.claude/skills/)${RESET}"
   echo -e "  ${BOLD}[2]${RESET} GitHub Copilot CLI  ${DIM}(project skills/ or custom path)${RESET}"
-  echo -e "  ${BOLD}[3]${RESET} Gemini   ${DIM}(generate system-instructions.md)${RESET}"
+  echo -e "  ${BOLD}[3]${RESET} Gemini CLI  ${DIM}(~/.gemini/personas/ + activate via GEMINI.md)${RESET}"
   echo -e "  ${BOLD}[4]${RESET} All platforms"
   echo ""
 
@@ -155,22 +155,55 @@ install_copilot() {
   print_ok "Copilot: $display → $dest_dir/SKILL.md"
 }
 
-# ── Install: Gemini ───────────────────────────────────────────────────────────
+# ── Install: Gemini CLI ───────────────────────────────────────────────────────
+# Gemini CLI loads ~/.gemini/GEMINI.md as global context on every session.
+# We store each persona under ~/.gemini/personas/<slug>.md and let the user
+# choose which one to activate (copy to ~/.gemini/GEMINI.md).
 install_gemini() {
   local persona="$1"
   local display="$2"
-  local dest="$HOME/.gemini/system-instructions-$persona.md"
+  local personas_store="$HOME/.gemini/personas"
+  local dest="$personas_store/$persona.md"
 
-  mkdir -p "$HOME/.gemini"
+  mkdir -p "$personas_store"
   cp "$PERSONAS_DIR/$persona/SKILL.md" "$dest"
-  print_ok "Gemini: $display → $dest"
-  echo -e "    ${DIM}Load with: gemini --system-instructions $dest${RESET}"
+  print_ok "Gemini CLI: $display → $dest"
+}
+
+# Ask which persona to activate globally after all installs
+activate_gemini_persona() {
+  local installed=("$@")
+  if [[ ${#installed[@]} -eq 0 ]]; then return; fi
+
+  echo ""
+  echo -e "  ${CYAN}Activate a Gemini persona globally (writes to ~/.gemini/GEMINI.md)?${RESET}"
+  local i=1
+  for p in "${installed[@]}"; do
+    local d; d=$(get_display_name "$p")
+    echo -e "    ${BOLD}[$i]${RESET} $d"
+    ((i++))
+  done
+  echo -e "    ${BOLD}[s]${RESET} Skip (activate manually later)"
+  echo ""
+
+  read -rp "$(echo -e "${YELLOW}  Select [1-${#installed[@]}/s]: ${RESET}")" act_choice
+
+  if [[ "$act_choice" =~ ^[0-9]+$ ]] && (( act_choice >= 1 && act_choice <= ${#installed[@]} )); then
+    local chosen="${installed[$((act_choice-1))]}"
+    cp "$HOME/.gemini/personas/$chosen.md" "$HOME/.gemini/GEMINI.md"
+    print_ok "Activated: $(get_display_name "$chosen") → ~/.gemini/GEMINI.md"
+    echo -e "    ${DIM}Start Gemini CLI and the persona is loaded automatically.${RESET}"
+    echo -e "    ${DIM}Switch later: cp ~/.gemini/personas/<slug>.md ~/.gemini/GEMINI.md${RESET}"
+  else
+    echo -e "    ${DIM}Skipped. To activate manually:${RESET}"
+    echo -e "    ${DIM}  cp ~/.gemini/personas/<slug>.md ~/.gemini/GEMINI.md${RESET}"
+  fi
 }
 
 # ── Also install research data (optional) ────────────────────────────────────
 offer_research_install() {
   local persona="$1"
-  local research_dir="$PERSONAS_DIR/$persona/research"
+  local research_dir="$PERSONAS_DIR/$persona/references/research"
   local count
   count=$(find "$research_dir" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
 
@@ -178,7 +211,7 @@ offer_research_install() {
     echo ""
     read -rp "$(echo -e "${DIM}  Also copy $count research files for $persona? [y/N]: ${RESET}")" copy_research
     if [[ "$copy_research" =~ ^[Yy]$ ]]; then
-      local dest_research="$HOME/.distilled-minds/$persona/research"
+      local dest_research="$HOME/.distilled-minds/$persona/references/research"
       mkdir -p "$dest_research"
       cp "$research_dir"/*.md "$dest_research/" 2>/dev/null || true
       print_ok "Research data → $dest_research/"
@@ -222,6 +255,7 @@ main() {
   echo ""
 
   COPILOT_PROJECT_PATH=""
+  GEMINI_INSTALLED=()
 
   for persona in "${SELECTED_PERSONAS[@]}"; do
     local display
@@ -232,13 +266,18 @@ main() {
       case "$platform" in
         claude)  install_claude  "$persona" "$display" ;;
         copilot) install_copilot "$persona" "$display" ;;
-        gemini)  install_gemini  "$persona" "$display" ;;
+        gemini)  install_gemini  "$persona" "$display"; GEMINI_INSTALLED+=("$persona") ;;
       esac
     done
 
     offer_research_install "$persona"
     echo ""
   done
+
+  # If Gemini was selected, ask which persona to activate
+  if [[ ${#GEMINI_INSTALLED[@]} -gt 0 ]]; then
+    activate_gemini_persona "${GEMINI_INSTALLED[@]}"
+  fi
 
   echo ""
   echo -e "${GREEN}${BOLD}✓ Installation complete!${RESET}"
@@ -256,8 +295,11 @@ main() {
         echo -e "  In your project, say: ${BOLD}「用 [persona名] 的視角」${RESET}"
         ;;
       gemini)
-        echo -e "${CYAN}Gemini:${RESET}"
-        echo -e "  Use: ${BOLD}gemini --system-instructions ~/.gemini/system-instructions-<persona>.md${RESET}"
+        echo -e "${CYAN}Gemini CLI:${RESET}"
+        echo -e "  Persona stored in: ${BOLD}~/.gemini/personas/${RESET}"
+        echo -e "  Active persona:    ${BOLD}~/.gemini/GEMINI.md${RESET} (loaded automatically)"
+        echo -e "  Switch persona:    ${BOLD}cp ~/.gemini/personas/<slug>.md ~/.gemini/GEMINI.md${RESET}"
+        echo -e "  Then just run:     ${BOLD}gemini${RESET}"
         ;;
     esac
   done
