@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Distilled Minds — Install / Uninstall Script
+# Distilled Minds — Install Script
 # Install distilled persona skills into Claude Code, GitHub Copilot CLI, or Gemini CLI
+# Requires: bash 3.2+ (macOS default), standard Unix tools
 # =============================================================================
 
 set -euo pipefail
@@ -56,8 +57,10 @@ get_display_name() {
 
 # ── Select personas (multi-select) ───────────────────────────────────────────
 select_personas() {
-  local personas
-  mapfile -t personas < <(get_personas)
+  local personas=()
+  while IFS= read -r line; do
+    personas+=("$line")
+  done < <(get_personas)
 
   if [[ ${#personas[@]} -eq 0 ]]; then
     print_err "No personas found in $PERSONAS_DIR"
@@ -105,7 +108,6 @@ select_personas() {
 
 # ── Select platform ───────────────────────────────────────────────────────────
 select_platform() {
-  local label="${1:-install to}"
   print_step "Select target platform:"
   echo ""
   echo -e "  ${BOLD}[1]${RESET} Claude Code        ${DIM}(~/.claude/skills/<name>/)${RESET}"
@@ -187,28 +189,7 @@ EOF
   print_ok "Gemini CLI: $display → $dest (imported in GEMINI.md)"
 }
 
-# ── Also install research data (optional) ────────────────────────────────────
-offer_research_install() {
-  local persona="$1"
-  local research_dir="$PERSONAS_DIR/$persona/references/research"
-  local count
-  count=$(find "$research_dir" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-
-  if [[ "$count" -gt 0 ]]; then
-    echo ""
-    read -rp "$(echo -e "${DIM}  Also copy $count research files for $persona? [y/N]: ${RESET}")" copy_research
-    if [[ "$copy_research" =~ ^[Yy]$ ]]; then
-      local dest_research="$HOME/.distilled-minds/$persona/references/research"
-      mkdir -p "$dest_research"
-      cp "$research_dir"/*.md "$dest_research/" 2>/dev/null || true
-      print_ok "Research data → $dest_research/"
-    fi
-  fi
-}
-
-# =============================================================================
-# ── Uninstall ─────────────────────────────────────────────────────────────────
-# =============================================================================
+# ── Uninstall (use uninstall.sh directly) ─────────────────────────────────────
 uninstall() {
   print_header
   echo -e "${RED}${BOLD}  Uninstall Mode${RESET}"
@@ -234,17 +215,20 @@ uninstall() {
   esac
 
   # Get all known persona slugs
-  local personas
-  mapfile -t personas < <(get_personas)
+  local personas=()
+  while IFS= read -r line; do
+    personas+=("$line")
+  done < <(get_personas)
 
   echo ""
   print_step "Removing personas..."
 
+  local p dir pfile gemini_md import_line remaining
   for platform in "${platforms_to_remove[@]}"; do
     case "$platform" in
       claude)
         for p in "${personas[@]}"; do
-          local dir="$HOME/.claude/skills/$p"
+          dir="$HOME/.claude/skills/$p"
           if [[ -d "$dir" ]]; then
             rm -rf "$dir"
             print_ok "Removed Claude: $dir"
@@ -253,7 +237,7 @@ uninstall() {
         ;;
       copilot)
         for p in "${personas[@]}"; do
-          local dir="$HOME/.copilot/skills/$p"
+          dir="$HOME/.copilot/skills/$p"
           if [[ -d "$dir" ]]; then
             rm -rf "$dir"
             print_ok "Removed Copilot: $dir"
@@ -261,53 +245,34 @@ uninstall() {
         done
         ;;
       gemini)
-        local gemini_md="$HOME/.gemini/GEMINI.md"
+        gemini_md="$HOME/.gemini/GEMINI.md"
         for p in "${personas[@]}"; do
-          # Remove persona file
-          local pfile="$HOME/.gemini/personas/$p.md"
+          pfile="$HOME/.gemini/personas/$p.md"
           if [[ -f "$pfile" ]]; then
             rm -f "$pfile"
             print_ok "Removed Gemini persona: $pfile"
           fi
-          # Remove @import line from GEMINI.md
           if [[ -f "$gemini_md" ]]; then
-            local import_line="@./personas/$p.md"
+            import_line="@./personas/$p.md"
             if grep -qF "$import_line" "$gemini_md"; then
-              # Use sed to remove the import line
-              sed -i'' -e "\|$import_line|d" "$gemini_md"
+              sed -i '' -e "\|$import_line|d" "$gemini_md"
             fi
           fi
         done
-        # Clean up empty personas dir
         if [[ -d "$HOME/.gemini/personas" ]]; then
           rmdir "$HOME/.gemini/personas" 2>/dev/null || true
         fi
-        # If GEMINI.md only has our header left (no imports), remove it
         if [[ -f "$gemini_md" ]]; then
-          local remaining
           remaining=$(grep -c '^@\.' "$gemini_md" 2>/dev/null || echo "0")
-          if [[ "$remaining" -eq 0 ]]; then
-            # Check if it's our auto-generated file (has our header)
-            if grep -q "Distilled Minds" "$gemini_md" 2>/dev/null; then
-              rm -f "$gemini_md"
-              print_ok "Removed empty GEMINI.md (was only Distilled Minds content)"
-            fi
+          if [[ "$remaining" -eq 0 ]] && grep -q "Distilled Minds" "$gemini_md" 2>/dev/null; then
+            rm -f "$gemini_md"
+            print_ok "Removed empty GEMINI.md (was only Distilled Minds content)"
           fi
         fi
         print_ok "Cleaned Gemini GEMINI.md imports"
         ;;
     esac
   done
-
-  # Also clean up research data
-  if [[ -d "$HOME/.distilled-minds" ]]; then
-    echo ""
-    read -rp "$(echo -e "${YELLOW}Also remove research data (~/.distilled-minds/)? [y/N]: ${RESET}")" rm_research
-    if [[ "$rm_research" =~ ^[Yy]$ ]]; then
-      rm -rf "$HOME/.distilled-minds"
-      print_ok "Removed research data"
-    fi
-  fi
 
   echo ""
   echo -e "${GREEN}${BOLD}✓ Uninstall complete!${RESET}"
@@ -368,7 +333,6 @@ main() {
       esac
     done
 
-    offer_research_install "$persona"
     echo ""
   done
 
