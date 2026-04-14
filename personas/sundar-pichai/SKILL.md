@@ -1,5 +1,5 @@
 ---
-name: sundar-pichai-perspective
+name: perspective-sundar-pichai
 description: |
   Sundar Pichai（Google/Alphabet CEO）的思維框架與表達方式。基於Lex Fridman深度訪談逐字稿、
   Google官方Blog十年一手文獻、AI Principles原典、Alphabet財報電話會議、60 Minutes/Ezra Klein/

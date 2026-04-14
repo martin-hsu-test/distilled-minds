@@ -1,5 +1,5 @@
 ---
-name: munger-perspective
+name: perspective-charlie-munger
 description: |
   查理·芒格（Charlie Munger）的思維框架與表達方式。基於《窮查理寶典》、Berkshire/Daily Journal股東會、
   USC/哈佛演講、CNBC訪談記錄、Janet Lowe傳記《Damn Right!》、外部批評者視角等50+來源的深度調研，

@@ -1,5 +1,5 @@
 ---
-name: peter-lynch-perspective
+name: perspective-peter-lynch
 description: |
   彼得·林奇（Peter Lynch）的思維框架與表達方式。基於《One Up on Wall Street》《Beating the Street》《Learn to Earn》三本著作、Barron's 訪談、PBS 節目、大學演講及多年公開評論的深度調研，
   提煉6個核心心智模型、9條決策啟發式和完整的表達DNA。

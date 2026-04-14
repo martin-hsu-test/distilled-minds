@@ -47,12 +47,10 @@ get_personas() {
   printf '%s\n' "${result[@]}"
 }
 
-# ── Get display name from SKILL.md ────────────────────────────────────────────
+# ── Get display name from directory name ─────────────────────────────────────
+# Title-cases the directory (e.g. richard-feynman → Richard Feynman).
 get_display_name() {
-  local skill_file="$PERSONAS_DIR/$1/SKILL.md"
-  local name
-  name=$(grep -m1 '^name:' "$skill_file" 2>/dev/null | sed 's/name: *//' | tr -d '"' | sed 's/-perspective//' | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}')
-  echo "${name:-$1}"
+  echo "$1" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}'
 }
 
 # ── Select personas (multi-select) ───────────────────────────────────────────
@@ -73,14 +71,17 @@ select_personas() {
   for persona in "${personas[@]}"; do
     local display
     display=$(get_display_name "$persona")
-    local research_count
-    research_count=$(find "$PERSONAS_DIR/$persona/references/research" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    local research_dir="$PERSONAS_DIR/$persona/references"
+    local research_count=0
+    if [[ -d "$research_dir" ]]; then
+      research_count=$(find "$research_dir" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    fi
     if [[ "$research_count" -gt 0 ]]; then
       echo -e "  ${BOLD}[$i]${RESET} $display ${DIM}($research_count research files)${RESET}"
     else
       echo -e "  ${BOLD}[$i]${RESET} $display"
     fi
-    ((i++))
+    i=$((i + 1))
   done
   echo -e "  ${BOLD}[a]${RESET} Install ALL personas"
   echo ""
@@ -112,7 +113,7 @@ select_platform() {
   echo ""
   echo -e "  ${BOLD}[1]${RESET} Claude Code        ${DIM}(~/.claude/skills/<name>/)${RESET}"
   echo -e "  ${BOLD}[2]${RESET} GitHub Copilot CLI  ${DIM}(~/.copilot/skills/<name>/)${RESET}"
-  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/ with @import in GEMINI.md)${RESET}"
+  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/skills/<name>/)${RESET}"
   echo -e "  ${BOLD}[4]${RESET} All platforms"
   echo ""
 
@@ -153,40 +154,15 @@ install_copilot() {
 }
 
 # ── Install: Gemini CLI ───────────────────────────────────────────────────────
-# Gemini CLI loads ~/.gemini/GEMINI.md as global context every session.
-# It supports @file.md imports to modularize context.
-# Strategy: store each persona as ~/.gemini/personas/<slug>.md,
-# then add @./personas/<slug>.md import lines to GEMINI.md.
+# Gemini CLI auto-discovers skills in ~/.gemini/skills/<name>/SKILL.md
 install_gemini() {
   local persona="$1"
   local display="$2"
-  local gemini_dir="$HOME/.gemini"
-  local personas_store="$gemini_dir/personas"
-  local dest="$personas_store/$persona.md"
-  local gemini_md="$gemini_dir/GEMINI.md"
+  local dest_dir="$HOME/.gemini/skills/$persona"
 
-  mkdir -p "$personas_store"
-  cp "$PERSONAS_DIR/$persona/SKILL.md" "$dest"
-
-  # Add @import line to GEMINI.md if not already present
-  local import_line="@./personas/$persona.md"
-  if [[ -f "$gemini_md" ]]; then
-    if ! grep -qF "$import_line" "$gemini_md"; then
-      echo "" >> "$gemini_md"
-      echo "$import_line" >> "$gemini_md"
-    fi
-  else
-    # Create GEMINI.md with a header + import
-    cat > "$gemini_md" <<EOF
-# Distilled Minds — Active Personas
-# Each @import loads a persona's cognitive framework.
-# Remove a line to deactivate that persona.
-
-$import_line
-EOF
-  fi
-
-  print_ok "Gemini CLI: $display → $dest (imported in GEMINI.md)"
+  mkdir -p "$dest_dir"
+  cp "$PERSONAS_DIR/$persona/SKILL.md" "$dest_dir/SKILL.md"
+  print_ok "Gemini CLI: $display → $dest_dir/SKILL.md"
 }
 
 # ── Uninstall (use uninstall.sh directly) ─────────────────────────────────────
@@ -199,7 +175,7 @@ uninstall() {
   echo ""
   echo -e "  ${BOLD}[1]${RESET} Claude Code        ${DIM}(~/.claude/skills/)${RESET}"
   echo -e "  ${BOLD}[2]${RESET} GitHub Copilot CLI  ${DIM}(~/.copilot/skills/)${RESET}"
-  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/personas/ + GEMINI.md imports)${RESET}"
+  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/skills/)${RESET}"
   echo -e "  ${BOLD}[4]${RESET} All platforms"
   echo ""
 
@@ -247,29 +223,12 @@ uninstall() {
       gemini)
         gemini_md="$HOME/.gemini/GEMINI.md"
         for p in "${personas[@]}"; do
-          pfile="$HOME/.gemini/personas/$p.md"
-          if [[ -f "$pfile" ]]; then
-            rm -f "$pfile"
-            print_ok "Removed Gemini persona: $pfile"
-          fi
-          if [[ -f "$gemini_md" ]]; then
-            import_line="@./personas/$p.md"
-            if grep -qF "$import_line" "$gemini_md"; then
-              sed -i '' -e "\|$import_line|d" "$gemini_md"
-            fi
+          dir="$HOME/.gemini/skills/$p"
+          if [[ -d "$dir" ]]; then
+            rm -rf "$dir"
+            print_ok "Removed Gemini: $dir"
           fi
         done
-        if [[ -d "$HOME/.gemini/personas" ]]; then
-          rmdir "$HOME/.gemini/personas" 2>/dev/null || true
-        fi
-        if [[ -f "$gemini_md" ]]; then
-          remaining=$(grep -c '^@\.' "$gemini_md" 2>/dev/null || echo "0")
-          if [[ "$remaining" -eq 0 ]] && grep -q "Distilled Minds" "$gemini_md" 2>/dev/null; then
-            rm -f "$gemini_md"
-            print_ok "Removed empty GEMINI.md (was only Distilled Minds content)"
-          fi
-        fi
-        print_ok "Cleaned Gemini GEMINI.md imports"
         ;;
     esac
   done
@@ -358,11 +317,9 @@ main() {
         ;;
       gemini)
         echo -e "${CYAN}Gemini CLI:${RESET}"
-        echo -e "  Personas stored in: ${BOLD}~/.gemini/personas/${RESET}"
-        echo -e "  Auto-loaded via:    ${BOLD}~/.gemini/GEMINI.md${RESET} (@import)"
-        echo -e "  All installed personas are active simultaneously."
-        echo -e "  To deactivate one, remove its @import line from GEMINI.md."
-        echo -e "  Check loaded context: ${BOLD}/memory show${RESET}"
+        echo -e "  Skills auto-discovered at: ${BOLD}~/.gemini/skills/<name>/SKILL.md${RESET}"
+        echo -e "  Available in all projects. Check with: ${BOLD}/skills list${RESET}"
+        echo -e "  Trigger: ${BOLD}「用 [persona名] 的視角」${RESET}"
         echo ""
         ;;
     esac

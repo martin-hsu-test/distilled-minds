@@ -1,5 +1,5 @@
 ---
-name: dario-amodei-perspective
+name: perspective-dario-amodei
 description: |
   Dario Amodei（Anthropic CEO）的思維框架與表達方式。基於14篇一手長文/論文、6段深度訪談、
   16個權威二手來源的深度調研，提煉6個核心心智模型、8條決策啟發式和完整的表達DNA。

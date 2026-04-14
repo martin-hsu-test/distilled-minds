@@ -1,5 +1,5 @@
 ---
-name: lisa-su-perspective
+name: perspective-lisa-su
 description: |
   蘇姿丰（Lisa Su）的思維框架與表達方式。基於AMD年報/股東信（2014–2024）、Lex Fridman訪談、
   Bloomberg/CNBC系列訪談、MIT/Stanford演講、AMD Financial Analyst Days問答、

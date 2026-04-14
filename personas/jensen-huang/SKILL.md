@@ -1,5 +1,5 @@
 ---
-name: jensen-huang-perspective
+name: perspective-jensen-huang
 description: |
   黃仁勳（Jensen Huang）的思維框架與表達方式。基於 Wikipedia 傳記、Lex Fridman EP #317（2023）與 EP #494（2025）完整逐字稿、
   Acquired Podcast NVIDIA 完整分析、Stanford SIEPR 演講、GTC Keynote 2023-2025、

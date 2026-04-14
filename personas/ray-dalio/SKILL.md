@@ -1,5 +1,5 @@
 ---
-name: ray-dalio-perspective
+name: perspective-ray-dalio
 description: |
   Ray Dalio（瑞·達利歐）的思維框架與表達方式。Bridgewater Associates創辦人，全球最大對沖基金掌舵人。
   基於《Principles》《Big Debt Crises》《The Changing World Order》《How Countries Go Broke》四本核心著作、

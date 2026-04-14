@@ -53,7 +53,7 @@ main() {
   echo ""
   echo -e "  ${BOLD}[1]${RESET} Claude Code        ${DIM}(~/.claude/skills/)${RESET}"
   echo -e "  ${BOLD}[2]${RESET} GitHub Copilot CLI  ${DIM}(~/.copilot/skills/)${RESET}"
-  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/personas/ + GEMINI.md @imports)${RESET}"
+  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/skills/)${RESET}"
   echo -e "  ${BOLD}[4]${RESET} All platforms"
   echo ""
 
@@ -109,37 +109,15 @@ main() {
         ;;
       gemini)
         echo -e "  ${CYAN}Gemini CLI:${RESET}"
-        gemini_md="$HOME/.gemini/GEMINI.md"
         local removed=0
         for p in "${personas[@]}"; do
-          pfile="$HOME/.gemini/personas/$p.md"
-          if [[ -f "$pfile" ]]; then
-            rm -f "$pfile"
-            print_ok "Removed persona file: $pfile"
+          dir="$HOME/.gemini/skills/$p"
+          if [[ -d "$dir" ]]; then
+            rm -rf "$dir"
+            print_ok "Removed: $dir"
             ((removed++)) || true
           fi
-          # Remove @import line from GEMINI.md
-          if [[ -f "$gemini_md" ]]; then
-            import_line="@./personas/$p.md"
-            if grep -qF "$import_line" "$gemini_md"; then
-              sed -i '' -e "\|$import_line|d" "$gemini_md"
-            fi
-          fi
         done
-        # Clean up empty personas dir
-        if [[ -d "$HOME/.gemini/personas" ]]; then
-          rmdir "$HOME/.gemini/personas" 2>/dev/null || true
-        fi
-        # Remove GEMINI.md if we created it and it's now empty
-        if [[ -f "$gemini_md" ]]; then
-          remaining=$(grep -c '^@\.' "$gemini_md" 2>/dev/null || echo "0")
-          if [[ "$remaining" -eq 0 ]] && grep -q "Distilled Minds" "$gemini_md" 2>/dev/null; then
-            rm -f "$gemini_md"
-            print_ok "Removed GEMINI.md (was only Distilled Minds content)"
-          else
-            print_ok "Cleaned @import lines from GEMINI.md (user content preserved)"
-          fi
-        fi
         [[ "$removed" -eq 0 ]] && print_warn "Nothing found to remove"
         ;;
     esac

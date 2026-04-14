@@ -5,7 +5,7 @@
 > **把世界頂尖思考者的認知操作系統，蒸餾成可安裝的 AI Skill。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Personas](https://img.shields.io/badge/Personas-10-blue)](#available-personas)
+[![Personas](https://img.shields.io/badge/Personas-25-blue)](#available-personas)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20%7C%20Copilot%20%7C%20Gemini-purple)](#install)
 
 每個 Persona 都包含：
@@ -20,11 +20,15 @@
 
 ## Available Personas
 
+### 🏠 本專案原創蒸餾
+
 | Persona | 領域 | 核心框架 | 調研深度 |
 |---------|------|---------|---------|
 | **Sundar Pichai** | AI 戰略 / 科技治理 | Bold & Responsible · Full Stack AI · AJI 思維 | 6 維度，30+ 一手來源 |
 | **黃仁勳 Jensen Huang** | 半導體 / AI 基礎設施 | 痛苦是禮物 · 平台思維 · 傳道式領導 | 6 維度，30+ 一手來源 |
 | **蘇姿丰 Lisa Su** | 半導體 / 企業轉型 | 工程事實優先 · 無情的優先排序 · 以執行贏得信任 | 6 維度，25+ 一手來源 |
+| **張忠謀 Morris Chang** | 半導體 / 策略 | 專業分工 · 學習曲線 · 定位即戰略 | 6 維度 |
+| **Dario Amodei** | AI 安全 / 前沿模型 | Scaling 與對齊並重 · Race to the Top · 機器解釋性 | 6 維度 |
 | **比爾蓋茲 Bill Gates** | 科技 / 全球公衛 | 模型思維 · Think Week · 系統性樂觀 | 6 維度，30+ 一手來源 |
 | **史蒂芬·霍金 Stephen Hawking** | 理論物理 / 科普 | 科學民主化 · 邊界即探索起點 · 宇宙時間尺度 | 6 維度，25+ 一手來源 |
 | **Warren Buffett** | 價值投資 | 護城河思維 · 能力圈 · 複利人生 | 6 維度，35+ 一手來源 |
@@ -32,6 +36,26 @@
 | **Benjamin Graham** | 價值投資奠基 | 安全邊際 · 市場先生 · 防禦性投資 | 6 維度，25+ 一手來源 |
 | **Peter Lynch** | 成長股投資 | 投資你所知 · 十倍股 · 業餘優勢 | 6 維度，25+ 一手來源 |
 | **Ray Dalio** | 宏觀投資 / 組織設計 | 債務週期 · 極度透明 · 痛苦+反思=進步 | 6 維度，30+ 一手來源 |
+
+### 🌱 匯入自 [nuwa-skill](https://github.com/alchaincyf/nuwa-skill)
+
+以下 persona 取自 alchaincyf 的 [nuwa-skill](https://github.com/alchaincyf/nuwa-skill) 專案（MIT License），原始內容為簡體中文，已保留原樣以忠於來源。
+
+| Persona | 領域 | 核心框架 | 來源 |
+|---------|------|---------|---------|
+| **Paul Graham** | 創業 / 寫作 | Make Something People Want · Schlep Blindness · 寫作即思考 | nuwa-skill |
+| **Elon Musk** | 工程 / 第一性原理 | 第一性原理 · Idiot Index · The Algorithm 五步法 | nuwa-skill |
+| **Steve Jobs** | 產品 / 設計 | Taste as Filter · Focus = 說不 · 科技與人文的交會 | nuwa-skill |
+| **Andrej Karpathy** | AI / 教育 | Software 2.0 · 從零手刻理解 · 公開學習 | nuwa-skill |
+| **Ilya Sutskever** | AI 研究 | Scaling Hypothesis · 預測即理解 · 研究品味 | nuwa-skill |
+| **Richard Feynman** | 學習方法 / 物理 | Feynman Technique · 想像 vs 知道 · 誠實是第一原則 | nuwa-skill |
+| **Naval Ravikant** | 創富 / 人生哲學 | 特定知識 · 四種槓桿 · Play Long-Term Games | nuwa-skill |
+| **Nassim Taleb** | 風險管理 / 機率 | 反脆弱 · 黑天鵝 · Skin in the Game · 林迪效應 | nuwa-skill |
+| **MrBeast** | 內容創作 / YouTube | 前 30 秒定生死 · 無限迭代 · 昂貴的真實 | nuwa-skill |
+| **Donald Trump** | 談判 / 敘事操控 | Art of the Deal · Attack First · 框架定義戰爭 | nuwa-skill |
+| **張一鳴 Zhang Yiming** | 產品 / 組織 | 理性克制 · Context not Control · 延遲滿足 | nuwa-skill |
+| **張雪峰 Zhang Xuefeng** | 教育 / 職涯 | 信息差套利 · 務實勝過情懷 · 家庭資源盤點 | nuwa-skill |
+| **孫宇晨 Justin Sun** | 行銷 / 注意力經濟 | 碰瓷行銷 · 數字轟炸 · 爭議即流量 | nuwa-skill |
 
 ---
 
@@ -112,18 +136,34 @@ Select platform [1-4]: 4
 ```
 distilled-minds/
 ├── install.sh              # 互動式安裝腳本
+├── uninstall.sh
 ├── README.md
 └── personas/
-    ├── sundar-pichai/
-    ├── jensen-huang/
-    ├── lisa-su/
-    ├── bill-gates/
-    ├── stephen-hawking/
-    ├── warren-buffett/
-    ├── charlie-munger/
-    ├── benjamin-graham/
-    ├── peter-lynch/
-    └── ray-dalio/
+    ├── sundar-pichai/      ┐
+    ├── jensen-huang/       │
+    ├── lisa-su/            │
+    ├── morris-chang/       │
+    ├── dario-amodei/       │
+    ├── bill-gates/         │ 本專案原創
+    ├── stephen-hawking/    │
+    ├── warren-buffett/     │
+    ├── charlie-munger/     │
+    ├── benjamin-graham/    │
+    ├── peter-lynch/        │
+    ├── ray-dalio/          ┘
+    ├── paul-graham/        ┐
+    ├── elon-musk/          │
+    ├── steve-jobs/         │
+    ├── andrej-karpathy/    │
+    ├── ilya-sutskever/     │
+    ├── richard-feynman/    │ 匯入自 nuwa-skill
+    ├── naval-ravikant/     │ (alchaincyf/nuwa-skill)
+    ├── nassim-taleb/       │
+    ├── mrbeast/            │
+    ├── donald-trump/       │
+    ├── zhang-yiming/       │
+    ├── zhang-xuefeng/      │
+    └── justin-sun/         ┘
         ├── SKILL.md            # 蒸餾後的可運行 Skill
         └── references/
             └── research/       # 原始調研資料（一手來源）
@@ -170,6 +210,16 @@ personas/<name>/
 - 一手來源佔比 ≥ 60%
 - 每個心智模型需有 ≥ 2 個一手引用支撐
 - 需包含「局限性」欄位（避免盲目崇拜）
+
+---
+
+## Credits
+
+部分 persona 來自以下開源專案，感謝原作者的蒸餾工作：
+
+- **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)** by [@alchaincyf](https://github.com/alchaincyf) — 提供 Paul Graham、Elon Musk、Steve Jobs、Andrej Karpathy、Ilya Sutskever、Richard Feynman、Naval Ravikant、Nassim Taleb、MrBeast、Donald Trump、張一鳴、張雪峰、孫宇晨等 13 個 persona（MIT License）。原始為簡體中文版本，保留原樣以忠於來源。
+
+本專案的原創 persona（Sundar Pichai、Jensen Huang、Lisa Su、Morris Chang、Dario Amodei、Bill Gates、Stephen Hawking、Warren Buffett、Charlie Munger、Benjamin Graham、Peter Lynch、Ray Dalio）為繁體中文深度蒸餾。
 
 ---
 

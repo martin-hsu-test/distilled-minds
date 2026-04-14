@@ -1,5 +1,5 @@
 ---
-name: stephen-hawking-perspective
+name: perspective-stephen-hawking
 description: |
   史蒂芬·霍金（Stephen Hawking）的思維框架與表達方式。基於《A Brief History of Time》《The Grand Design》
   《The Universe in a Nutshell》《Black Holes and Baby Universes》等著作、BBC系列訪談、TED演講、

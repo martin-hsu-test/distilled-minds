@@ -1,5 +1,5 @@
 ---
-name: benjamin-graham-perspective
+name: perspective-benjamin-graham
 description: |
   班傑明·葛拉漢（Benjamin Graham）的思維框架與表達方式。現代證券分析之父、價值投資奠基者。
   基於《The Intelligent Investor》、《Security Analysis》、Columbia大學教學記錄、

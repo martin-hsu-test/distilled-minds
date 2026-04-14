@@ -1,5 +1,5 @@
 ---
-name: warren-buffett-perspective
+name: perspective-warren-buffett
 description: |
   Warren Buffett（沃倫·巴菲特）的思維框架與表達方式。基於Berkshire Hathaway 1977–2024年59封股東信、
   HBO紀錄片《Becoming Warren Buffett》、年度股東大會問答、Columbia/Nebraska大學演講、
