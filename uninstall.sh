@@ -77,50 +77,25 @@ main() {
   echo ""
   print_step "Removing installed personas..."
 
-  local p dir pfile gemini_md import_line remaining
+  local p dir base label removed
   for platform in "${platforms_to_remove[@]}"; do
     echo ""
     case "$platform" in
-      claude)
-        echo -e "  ${CYAN}Claude Code:${RESET}"
-        local removed=0
-        for p in "${personas[@]}"; do
-          dir="$HOME/.claude/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed: $dir"
-            ((removed++)) || true
-          fi
-        done
-        [[ "$removed" -eq 0 ]] && print_warn "Nothing found to remove"
-        ;;
-      copilot)
-        echo -e "  ${CYAN}GitHub Copilot CLI:${RESET}"
-        local removed=0
-        for p in "${personas[@]}"; do
-          dir="$HOME/.copilot/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed: $dir"
-            ((removed++)) || true
-          fi
-        done
-        [[ "$removed" -eq 0 ]] && print_warn "Nothing found to remove"
-        ;;
-      gemini)
-        echo -e "  ${CYAN}Gemini CLI:${RESET}"
-        local removed=0
-        for p in "${personas[@]}"; do
-          dir="$HOME/.gemini/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed: $dir"
-            ((removed++)) || true
-          fi
-        done
-        [[ "$removed" -eq 0 ]] && print_warn "Nothing found to remove"
-        ;;
+      claude)  base="$HOME/.claude/skills"  ; label="Claude Code"        ;;
+      copilot) base="$HOME/.copilot/skills" ; label="GitHub Copilot CLI" ;;
+      gemini)  base="$HOME/.gemini/skills"  ; label="Gemini CLI"         ;;
     esac
+    echo -e "  ${CYAN}${label}:${RESET}"
+    removed=0
+    for p in "${personas[@]}"; do
+      dir="$base/$p"
+      if [[ -d "$dir" ]]; then
+        rm -rf "$dir"
+        print_ok "Removed: $dir"
+        ((removed++)) || true
+      fi
+    done
+    [[ "$removed" -eq 0 ]] && print_warn "Nothing found to remove"
   done
 
   echo ""

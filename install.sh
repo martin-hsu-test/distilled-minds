@@ -10,6 +10,18 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PERSONAS_DIR="$REPO_DIR/personas"
 
+# Meta-skills live in personas/ alongside everything else but are hidden from
+# the selection menu and always auto-installed when the user picks anything.
+META_SKILLS=("ask-more")
+
+is_meta_skill() {
+  local name="$1" meta
+  for meta in "${META_SKILLS[@]}"; do
+    [[ "$name" == "$meta" ]] && return 0
+  done
+  return 1
+}
+
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,13 +46,13 @@ print_ok()   { echo -e "  ${GREEN}✓${RESET} $1"; }
 print_warn() { echo -e "  ${YELLOW}⚠${RESET}  $1"; }
 print_err()  { echo -e "  ${RED}✗${RESET} $1"; }
 
-# ── Read available personas ───────────────────────────────────────────────────
+# ── Read available personas (excludes meta-skills) ──────────────────────────
 get_personas() {
   local result=()
   for dir in "$PERSONAS_DIR"/*/; do
     local name
     name=$(basename "$dir")
-    if [[ -f "$dir/SKILL.md" ]]; then
+    if [[ -f "$dir/SKILL.md" ]] && ! is_meta_skill "$name"; then
       result+=("$name")
     fi
   done
@@ -199,38 +211,27 @@ uninstall() {
   echo ""
   print_step "Removing personas..."
 
-  local p dir pfile gemini_md import_line remaining
+  local p dir pfile gemini_md import_line remaining base label
   for platform in "${platforms_to_remove[@]}"; do
     case "$platform" in
-      claude)
-        for p in "${personas[@]}"; do
-          dir="$HOME/.claude/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed Claude: $dir"
-          fi
-        done
-        ;;
-      copilot)
-        for p in "${personas[@]}"; do
-          dir="$HOME/.copilot/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed Copilot: $dir"
-          fi
-        done
-        ;;
-      gemini)
-        gemini_md="$HOME/.gemini/GEMINI.md"
-        for p in "${personas[@]}"; do
-          dir="$HOME/.gemini/skills/$p"
-          if [[ -d "$dir" ]]; then
-            rm -rf "$dir"
-            print_ok "Removed Gemini: $dir"
-          fi
-        done
-        ;;
+      claude)  base="$HOME/.claude/skills"  ; label="Claude"  ;;
+      copilot) base="$HOME/.copilot/skills" ; label="Copilot" ;;
+      gemini)  base="$HOME/.gemini/skills"  ; label="Gemini"  ;;
     esac
+    for p in "${personas[@]}"; do
+      dir="$base/$p"
+      if [[ -d "$dir" ]]; then
+        rm -rf "$dir"
+        print_ok "Removed $label: $dir"
+      fi
+    done
+    for skill in "${META_SKILLS[@]}"; do
+      dir="$base/$skill"
+      if [[ -d "$dir" ]]; then
+        rm -rf "$dir"
+        print_ok "Removed $label: $dir"
+      fi
+    done
   done
 
   echo ""
@@ -292,6 +293,23 @@ main() {
       esac
     done
 
+    echo ""
+  done
+
+  # Meta-skills (ask-more etc) are hidden from the selection menu but always
+  # auto-installed alongside whatever persona(s) the user picked. Reuses the
+  # same install_claude/copilot/gemini functions because they live in personas/.
+  for skill in "${META_SKILLS[@]}"; do
+    local display
+    display=$(get_display_name "$skill")
+    echo -e "  ${BOLD}$display${RESET} ${DIM}(meta)${RESET}"
+    for platform in "${PLATFORMS[@]}"; do
+      case "$platform" in
+        claude)  install_claude  "$skill" "$display" ;;
+        copilot) install_copilot "$skill" "$display" ;;
+        gemini)  install_gemini  "$skill" "$display" ;;
+      esac
+    done
     echo ""
   done
 
