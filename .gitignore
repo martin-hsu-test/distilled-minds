@@ -1,0 +1,9 @@
+# Local-only working files
+AGENTS.md
+
+# OS / Editor
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
