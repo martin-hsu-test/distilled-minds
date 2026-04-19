@@ -7,7 +7,6 @@
 ```
 personas/<slug>/
 ├── SKILL.md                          # 蒸餾後的可運行 Skill（必要）
-├── TAGLINE                           # 兩行：第1行=領域；第2行=核心框架（必要，安裝選單會顯示）
 └── references/
     └── research/                     # 六維度調研原始資料（必要）
         ├── 01-writings.md            # 著作與系統性長文
@@ -18,11 +17,7 @@ personas/<slug>/
         └── 06-timeline.md            # 人物完整時間線
 ```
 
-**TAGLINE 範例**（`personas/sundar-pichai/TAGLINE`）：
-```
-AI 戰略 / 科技治理
-Bold & Responsible · Full Stack AI · AJI 思維
-```
+**安裝選單顯示**：`install.sh` 會從 [README.md](README.md) 的 persona 表格自動解析「領域」與「核心框架」顯示給使用者，所以新增 persona 時**請務必同步更新 README 表格**（粗體名稱必須與 `get_display_name(slug)` 一致：例如 `richard-feynman` → `**Richard Feynman**`）。
 
 ### Slug 命名規則
 

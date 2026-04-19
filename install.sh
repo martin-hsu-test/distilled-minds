@@ -65,6 +65,32 @@ get_display_name() {
   echo "$1" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}'
 }
 
+# ── Get tagline (domain + frameworks) for a persona ──────────────────────────
+# Single source of truth = README.md tables. Parses rows like
+#   | **<...display name...>** | <domain> | <frameworks> | <...> |
+# (case-insensitive substring match on the bolded persona cell).
+# Outputs two lines: domain on stdout line 1, frameworks on line 2.
+# Empty output if no match.
+get_tagline() {
+  local slug="$1"
+  local display
+  display=$(get_display_name "$slug")
+  awk -F'|' -v name="$display" '
+    BEGIN { needle = tolower(name) }
+    /^\| \*\*/ {
+      if (index(tolower($0), needle)) {
+        # $2 is the bolded name cell, $3 = domain, $4 = frameworks
+        domain = $3; frameworks = $4
+        gsub(/^[ \t]+|[ \t]+$/, "", domain)
+        gsub(/^[ \t]+|[ \t]+$/, "", frameworks)
+        print domain
+        print frameworks
+        exit
+      }
+    }
+  ' "$REPO_DIR/README.md"
+}
+
 # ── Select personas (multi-select) ───────────────────────────────────────────
 select_personas() {
   local personas=()
@@ -96,12 +122,13 @@ select_personas() {
       echo -e "  ${BOLD}[$i]${RESET} $display"
     fi
 
-    # Tagline lines: domain + frameworks (read from personas/<slug>/TAGLINE)
-    local tagline_file="$PERSONAS_DIR/$persona/TAGLINE"
-    if [[ -f "$tagline_file" ]]; then
+    # Tagline lines: domain + frameworks (parsed from README tables)
+    local tagline
+    tagline=$(get_tagline "$persona")
+    if [[ -n "$tagline" ]]; then
       local domain frameworks
-      domain=$(sed -n '1p' "$tagline_file")
-      frameworks=$(sed -n '2p' "$tagline_file")
+      domain=$(printf '%s\n' "$tagline" | sed -n '1p')
+      frameworks=$(printf '%s\n' "$tagline" | sed -n '2p')
       [[ -n "$domain"     ]] && echo -e "       ${CYAN}領域:${RESET} $domain"
       [[ -n "$frameworks" ]] && echo -e "       ${CYAN}框架:${RESET} ${DIM}$frameworks${RESET}"
     fi
@@ -291,10 +318,11 @@ main() {
         echo "Available personas:"
         get_personas | while read -r p; do
           echo "  • $(get_display_name "$p") ($p)"
-          if [[ -f "$PERSONAS_DIR/$p/TAGLINE" ]]; then
-            local d f
-            d=$(sed -n '1p' "$PERSONAS_DIR/$p/TAGLINE")
-            f=$(sed -n '2p' "$PERSONAS_DIR/$p/TAGLINE")
+          local tagline d f
+          tagline=$(get_tagline "$p")
+          if [[ -n "$tagline" ]]; then
+            d=$(printf '%s\n' "$tagline" | sed -n '1p')
+            f=$(printf '%s\n' "$tagline" | sed -n '2p')
             [[ -n "$d" ]] && echo "      領域: $d"
             [[ -n "$f" ]] && echo "      框架: $f"
           fi
