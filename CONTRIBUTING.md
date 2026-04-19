@@ -57,7 +57,9 @@ SKILL.md 必須包含以下區塊（順序固定）：
 > 本Skill由 [女娲 · Skill造人術](https://github.com/alchaincyf/nuwa-skill) 生成
 ```
 
-**語言：繁體中文**
+**語言規則：**
+- **新增原創 persona**：使用繁體中文。
+- **匯入既有作品**（如自 nuwa-skill 等開源專案匯入）：保留原始語言不改寫，以忠於來源；但需在 README 的 persona 清單註明來源。
 
 ---
 

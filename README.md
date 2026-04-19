@@ -5,7 +5,7 @@
 > **把世界頂尖思考者的認知操作系統，蒸餾成可安裝的 AI Skill。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Personas](https://img.shields.io/badge/Personas-25-blue)](#available-personas)
+[![Personas](https://img.shields.io/badge/Personas-24%20%2B%201%20meta-blue)](#available-personas)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20%7C%20Copilot%20%7C%20Gemini-purple)](#install)
 
 每個 Persona 都包含：
@@ -71,6 +71,14 @@
 
 ## Install
 
+### 平台需求
+
+| 平台 | 最低版本 | 備註 |
+|------|---------|------|
+| **Claude Code** | 內建 skills 機制即可 | 無額外要求 |
+| **GitHub Copilot CLI** | 支援 personal skills 之版本 | `~/.copilot/skills/` 自動發現 |
+| **Gemini CLI** | **≥ 0.40 nightly**（含 agent skills 與 `/skills` 指令） | 穩定版尚未支援，安裝後會無作用 |
+
 ### 一鍵安裝（互動式）
 
 ```bash
@@ -79,6 +87,25 @@ cd distilled-minds
 chmod +x install.sh
 ./install.sh
 ```
+
+### 非互動安裝（CI / onboarding script）
+
+```bash
+# 一行裝完所有 persona 到 Gemini CLI
+./install.sh --platform gemini --personas all
+
+# 指定平台 + 指定 persona
+./install.sh --platform claude --personas warren-buffett charlie-munger
+
+# 全平台 + 全 persona
+./install.sh --platform all --personas all
+```
+
+### 公司 / 受管環境提醒
+
+- 安裝路徑都在使用者 HOME（`~/.claude/`、`~/.copilot/`、`~/.gemini/`），通常不需 admin 權限。
+- 若公司有 MDM 控管 `~/.gemini/`，先確認該目錄可寫。
+- `git clone` 若被擋，可改用打包下載的 zip 後執行 `install.sh`。
 
 安裝流程：
 
@@ -101,7 +128,7 @@ Select personas (e.g. 1 3 or a for all): a
 
   [1] Claude Code        (~/.claude/skills/<name>/)
   [2] GitHub Copilot CLI  (~/.copilot/skills/<name>/)
-  [3] Gemini CLI          (~/.gemini/ with @import in GEMINI.md)
+  [3] Gemini CLI          (~/.gemini/skills/<name>/)
   [4] All platforms
 
 Select platform [1-4]: 4
@@ -111,7 +138,7 @@ Select platform [1-4]: 4
   Sundar Pichai
   ✓ Claude Code:  → ~/.claude/skills/sundar-pichai/SKILL.md
   ✓ Copilot CLI:  → ~/.copilot/skills/sundar-pichai/SKILL.md
-  ✓ Gemini CLI:   → ~/.gemini/personas/sundar-pichai.md (imported in GEMINI.md)
+  ✓ Gemini CLI:   → ~/.gemini/skills/sundar-pichai/SKILL.md
   ...
 
 ✓ Installation complete!
@@ -131,7 +158,7 @@ Select platform [1-4]: 4
 |------|---------|-----------|---------|
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | ✅ 自動發現所有 skill | 觸發詞：「用 XX 的視角」 |
 | **GitHub Copilot CLI** | `~/.copilot/skills/<name>/SKILL.md` | ✅ 自動發現，`/skills list` 查看 | 觸發詞：「用 XX 的視角」或 `/skills` 選擇 |
-| **Gemini CLI** | `~/.gemini/personas/<name>.md`<br>自動 `@import` 到 `~/.gemini/GEMINI.md` | ✅ 所有 persona 同時載入 | 啟動 `gemini` 自動載入；`/memory show` 檢視 |
+| **Gemini CLI** | `~/.gemini/skills/<name>/SKILL.md` | ✅ 自動發現，`/skills list` 查看 | 觸發詞：「用 XX 的視角」或 `/skills` 選擇 |
 
 ### 列出可用 Persona
 
