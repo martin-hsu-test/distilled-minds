@@ -88,11 +88,24 @@ select_personas() {
     if [[ -d "$research_dir" ]]; then
       research_count=$(find "$research_dir" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
     fi
+
+    # Header line: number + name + research count
     if [[ "$research_count" -gt 0 ]]; then
       echo -e "  ${BOLD}[$i]${RESET} $display ${DIM}($research_count research files)${RESET}"
     else
       echo -e "  ${BOLD}[$i]${RESET} $display"
     fi
+
+    # Tagline lines: domain + frameworks (read from personas/<slug>/TAGLINE)
+    local tagline_file="$PERSONAS_DIR/$persona/TAGLINE"
+    if [[ -f "$tagline_file" ]]; then
+      local domain frameworks
+      domain=$(sed -n '1p' "$tagline_file")
+      frameworks=$(sed -n '2p' "$tagline_file")
+      [[ -n "$domain"     ]] && echo -e "       ${CYAN}領域:${RESET} $domain"
+      [[ -n "$frameworks" ]] && echo -e "       ${CYAN}框架:${RESET} ${DIM}$frameworks${RESET}"
+    fi
+
     i=$((i + 1))
   done
   echo -e "  ${BOLD}[a]${RESET} Install ALL personas"
@@ -278,6 +291,13 @@ main() {
         echo "Available personas:"
         get_personas | while read -r p; do
           echo "  • $(get_display_name "$p") ($p)"
+          if [[ -f "$PERSONAS_DIR/$p/TAGLINE" ]]; then
+            local d f
+            d=$(sed -n '1p' "$PERSONAS_DIR/$p/TAGLINE")
+            f=$(sed -n '2p' "$PERSONAS_DIR/$p/TAGLINE")
+            [[ -n "$d" ]] && echo "      領域: $d"
+            [[ -n "$f" ]] && echo "      框架: $f"
+          fi
         done
         exit 0
         ;;
