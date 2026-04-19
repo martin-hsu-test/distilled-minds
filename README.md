@@ -12,6 +12,8 @@
 - 🔬 **原始調研資料**（一手來源：訪談逐字稿、著作、決策記錄）
 - 🧠 **蒸餾 Skill**（核心心智模型 × 決策啟發式 × 表達 DNA）
 
+> 🛠️ **蒸餾方法論**：本專案所有原創 persona 都是透過 [**女娲 · Skill 造人術**](https://github.com/alchaincyf/nuwa-skill)（by [@alchaincyf](https://github.com/alchaincyf)）的方法論蒸餾出來的。詳見 [Credits](#credits)。
+
 [安裝](#install) · [Persona 列表](#available-personas) · [如何蒸餾新人物](#contribute)
 
 </div>
@@ -225,7 +227,19 @@ distilled-minds/
 - 🔍 **誠實邊界**：這個 Skill 做不到什麼？
 
 每個維度都基於一手來源，不是二手轉述。
+### 蒸餡方法論：女娲 · Skill 造人術
 
+本專案的所有原創 persona（Sundar Pichai、Jensen Huang、Lisa Su、Morris Chang、
+Dario Amodei、Bill Gates、Stephen Hawking、Warren Buffett、Charlie Munger、
+Benjamin Graham、Peter Lynch、Ray Dalio）都是**透過 [女娲 · Skill 造人術](https://github.com/alchaincyf/nuwa-skill) 提出的蒸餡流程产出**：
+
+1. **六維度調研**：著作、長對話、表達 DNA、他者視角、重大決策、時間線
+2. **心智模型提緵**：從一手語料中萃取 3–7 個可重複使用的認知框架
+3. **決策啟發式化**：讀他怎麼面對不確定性，提緵出 8 條快判斷規則
+4. **表達 DNA 錄製**：句式、詞彙、節奏、幽默、確定性表達都要能被辨識
+5. **反模式與誠實邊界**：明訂他不做什麼、這個 Skill 做不到什麼
+
+本專案的原創 persona 為繁體中文；匯入自 nuwa-skill 的 13 個 persona 保留原始簡體。
 ---
 
 ## Contribute
@@ -252,11 +266,19 @@ personas/<name>/
 
 ## Credits
 
-部分 persona 來自以下開源專案，感謝原作者的蒸餾工作：
+本專案的核心蒸餡方法、六維度調研框架、SKILL.md 格式規範，都取自：
 
-- **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)** by [@alchaincyf](https://github.com/alchaincyf) — 提供 Paul Graham、Elon Musk、Steve Jobs、Andrej Karpathy、Ilya Sutskever、Richard Feynman、Naval Ravikant、Nassim Taleb、MrBeast、Donald Trump、張一鳴、張雪峰、孫宇晨等 13 個 persona（MIT License）。原始為簡體中文版本，保留原樣以忠於來源。
+- **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)** by [@alchaincyf](https://github.com/alchaincyf) — 女娲 · Skill 造人術。本專案所有原創 persona 都是透過這個方法論蒸餡出來的，請務必去原專案給個 star。
 
-本專案的原創 persona（Sundar Pichai、Jensen Huang、Lisa Su、Morris Chang、Dario Amodei、Bill Gates、Stephen Hawking、Warren Buffett、Charlie Munger、Benjamin Graham、Peter Lynch、Ray Dalio）為繁體中文深度蒸餾。
+以下 13 個 persona 直接匯入自 nuwa-skill（MIT License），保留原始簡體以忠於來源：
+
+> Paul Graham、Elon Musk、Steve Jobs、Andrej Karpathy、Ilya Sutskever、
+> Richard Feynman、Naval Ravikant、Nassim Taleb、MrBeast、Donald Trump、
+> 張一鳴、張雪峰、孫宇晨
+
+本專案的原創 persona（Sundar Pichai、Jensen Huang、Lisa Su、Morris Chang、
+Dario Amodei、Bill Gates、Stephen Hawking、Warren Buffett、Charlie Munger、
+Benjamin Graham、Peter Lynch、Ray Dalio）為繁體中文深度蒸餡，依然遵循 nuwa-skill 的方法論。
 
 ---
 
