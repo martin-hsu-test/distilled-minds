@@ -177,70 +177,96 @@ install_gemini() {
   print_ok "Gemini CLI: $display → $dest_dir/SKILL.md"
 }
 
-# ── Uninstall (use uninstall.sh directly) ─────────────────────────────────────
+# ── Uninstall ────────────────────────────────────────────────────────────────
+# Delegates to uninstall.sh to keep removal logic in a single place.
 uninstall() {
-  print_header
-  echo -e "${RED}${BOLD}  Uninstall Mode${RESET}"
-  echo -e "  ${DIM}Remove all Distilled Minds personas from a platform.${RESET}"
+  exec "$REPO_DIR/uninstall.sh" "$@"
+}
 
-  print_step "Select platform to uninstall from:"
-  echo ""
-  echo -e "  ${BOLD}[1]${RESET} Claude Code        ${DIM}(~/.claude/skills/)${RESET}"
-  echo -e "  ${BOLD}[2]${RESET} GitHub Copilot CLI  ${DIM}(~/.copilot/skills/)${RESET}"
-  echo -e "  ${BOLD}[3]${RESET} Gemini CLI          ${DIM}(~/.gemini/skills/)${RESET}"
-  echo -e "  ${BOLD}[4]${RESET} All platforms"
-  echo ""
-
-  read -rp "$(echo -e "${YELLOW}Select platform [1-4]: ${RESET}")" platform_choice
-
-  local platforms_to_remove=()
-  case "$platform_choice" in
-    1) platforms_to_remove=("claude") ;;
-    2) platforms_to_remove=("copilot") ;;
-    3) platforms_to_remove=("gemini") ;;
-    4) platforms_to_remove=("claude" "copilot" "gemini") ;;
-    *) print_err "Invalid choice."; exit 1 ;;
-  esac
-
-  # Get all known persona slugs
-  local personas=()
-  while IFS= read -r line; do
-    personas+=("$line")
-  done < <(get_personas)
-
-  echo ""
-  print_step "Removing personas..."
-
-  local p dir pfile gemini_md import_line remaining base label
-  for platform in "${platforms_to_remove[@]}"; do
-    case "$platform" in
-      claude)  base="$HOME/.claude/skills"  ; label="Claude"  ;;
-      copilot) base="$HOME/.copilot/skills" ; label="Copilot" ;;
-      gemini)  base="$HOME/.gemini/skills"  ; label="Gemini"  ;;
+# ── Parse non-interactive flags ──────────────────────────────────────────────
+# Sets SELECTED_PERSONAS and PLATFORMS based on --personas / --platform flags.
+# Returns 0 if non-interactive args were consumed, 1 if no relevant flags.
+parse_noninteractive_args() {
+  local personas_arg="" platform_arg=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --personas)
+        shift
+        # Collect persona slugs until next flag or end
+        local collected=()
+        while [[ $# -gt 0 && "$1" != --* ]]; do
+          collected+=("$1")
+          shift
+        done
+        personas_arg="${collected[*]}"
+        ;;
+      --platform)
+        shift
+        platform_arg="${1:-}"
+        shift || true
+        ;;
+      *)
+        print_err "Unknown argument: $1"
+        exit 1
+        ;;
     esac
-    for p in "${personas[@]}"; do
-      dir="$base/$p"
-      if [[ -d "$dir" ]]; then
-        rm -rf "$dir"
-        print_ok "Removed $label: $dir"
-      fi
-    done
-    for skill in "${META_SKILLS[@]}"; do
-      dir="$base/$skill"
-      if [[ -d "$dir" ]]; then
-        rm -rf "$dir"
-        print_ok "Removed $label: $dir"
-      fi
-    done
   done
 
-  echo ""
-  echo -e "${GREEN}${BOLD}✓ Uninstall complete!${RESET}"
-  echo ""
+  if [[ -z "$personas_arg" && -z "$platform_arg" ]]; then
+    return 1
+  fi
+  if [[ -z "$personas_arg" || -z "$platform_arg" ]]; then
+    print_err "Non-interactive mode requires both --personas and --platform"
+    exit 1
+  fi
+
+  # Resolve personas
+  local all_personas=()
+  while IFS= read -r line; do
+    all_personas+=("$line")
+  done < <(get_personas)
+
+  SELECTED_PERSONAS=()
+  if [[ "$personas_arg" == "all" ]]; then
+    SELECTED_PERSONAS=("${all_personas[@]}")
+  else
+    for p in $personas_arg; do
+      local found=0
+      for known in "${all_personas[@]}"; do
+        if [[ "$p" == "$known" ]]; then
+          SELECTED_PERSONAS+=("$p")
+          found=1
+          break
+        fi
+      done
+      if [[ $found -eq 0 ]]; then
+        print_err "Unknown persona: $p (use --list to see available)"
+        exit 1
+      fi
+    done
+  fi
+
+  # Resolve platform
+  case "$platform_arg" in
+    claude)  PLATFORMS=("claude") ;;
+    copilot) PLATFORMS=("copilot") ;;
+    gemini)  PLATFORMS=("gemini") ;;
+    all)     PLATFORMS=("claude" "copilot" "gemini") ;;
+    *)
+      print_err "Unknown platform: $platform_arg (expected: claude|copilot|gemini|all)"
+      exit 1
+      ;;
+  esac
+
+  return 0
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 main() {
+  # Initialize so `set -u` doesn't trip on later length checks
+  SELECTED_PERSONAS=()
+  PLATFORMS=()
+
   # If args provided, use non-interactive mode
   if [[ $# -gt 0 ]]; then
     case "$1" in
@@ -256,23 +282,50 @@ main() {
         exit 0
         ;;
       --help|-h)
-        echo "Usage: ./install.sh [OPTIONS]"
-        echo ""
-        echo "Options:"
-        echo "  (no args)       Interactive install"
-        echo "  --uninstall     Remove all personas from a platform"
-        echo "  --list          List available personas"
-        echo "  --help          Show this help"
+        cat <<'EOF'
+Usage: ./install.sh [OPTIONS]
+
+Interactive:
+  (no args)                                 Interactive install
+
+Non-interactive:
+  --platform <claude|copilot|gemini|all> --personas <slug...|all>
+                                            Install without prompts
+  Examples:
+    ./install.sh --platform gemini --personas all
+    ./install.sh --platform claude --personas warren-buffett charlie-munger
+    ./install.sh --platform all --personas all
+
+Other:
+  --uninstall                               Remove personas (delegates to uninstall.sh)
+  --list                                    List available personas
+  --help, -h                                Show this help
+EOF
         exit 0
+        ;;
+      --personas|--platform)
+        # Non-interactive install path
+        if ! parse_noninteractive_args "$@"; then
+          print_err "Failed to parse non-interactive args."
+          exit 1
+        fi
+        ;;
+      *)
+        print_err "Unknown argument: $1 (use --help)"
+        exit 1
         ;;
     esac
   fi
 
   print_header
 
-  # Interactive mode
-  select_personas
-  select_platform
+  # Interactive mode (only if not already populated by non-interactive args)
+  if [[ ${#SELECTED_PERSONAS[@]} -eq 0 ]]; then
+    select_personas
+  fi
+  if [[ ${#PLATFORMS[@]} -eq 0 ]]; then
+    select_platform
+  fi
 
   echo ""
   print_step "Installing..."
